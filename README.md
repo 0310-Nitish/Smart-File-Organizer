@@ -42,3 +42,8 @@ File-Organizer/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
+
+## 📸 Screenshot
+
+![Smart File Organizer GUI](screenshots/gui.png)

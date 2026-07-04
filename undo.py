@@ -2,14 +2,15 @@ import json
 import shutil
 from pathlib import Path
 
-HISTORY_FILE = "history.json"
+
+BASE_DIR = Path(__file__).resolve().parent
+HISTORY_FILE = BASE_DIR / "history.json"
 
 
 def save_history(original_path, destination_path):
-
     history = []
 
-    if Path(HISTORY_FILE).exists():
+    if HISTORY_FILE.exists():
         with open(HISTORY_FILE, "r") as file:
             history = json.load(file)
 
@@ -21,9 +22,9 @@ def save_history(original_path, destination_path):
     with open(HISTORY_FILE, "w") as file:
         json.dump(history, file, indent=4)
 
-def undo_last_action():
 
-    if not Path(HISTORY_FILE).exists():
+def undo_last_action():
+    if not HISTORY_FILE.exists():
         return "No action to undo."
 
     with open(HISTORY_FILE, "r") as file:
@@ -32,24 +33,22 @@ def undo_last_action():
     if not history:
         return "No action to undo."
 
-    last_action = history.pop()
+    last_action = history[-1]
 
     original = Path(last_action["original"])
     destination = Path(last_action["destination"])
 
-    if destination.exists():
+    if not destination.exists():
+        return "File could not be restored because it was not found."
 
-        shutil.move(
-            str(destination),
-            str(original)
-        )
+    shutil.move(
+        str(destination),
+        str(original)
+    )
 
-        message = f"Restored: {destination.name}"
-
-    else:
-        message = "File could not be restored because it was not found."
+    history.pop()
 
     with open(HISTORY_FILE, "w") as file:
         json.dump(history, file, indent=4)
 
-    return message
+    return f"Restored: {destination.name}"

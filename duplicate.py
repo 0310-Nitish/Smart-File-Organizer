@@ -30,7 +30,8 @@ def find_duplicates(folder_path):
         file_hash = calculate_hash(file)
 
         if file_hash in hashes:
-            duplicates.append((file, hashes[file_hash]))
+            original = hashes[file_hash]
+            duplicates.append((original, file))
         else:
             hashes[file_hash] = file
 

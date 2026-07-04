@@ -6,6 +6,9 @@ from organizer import organize_folder
 from duplicate import find_duplicates
 from undo import undo_last_action
 
+BASE_DIR = Path(__file__).resolve().parent
+LOG_FILE = BASE_DIR / "activity.log"
+
 
 selected_folder = ""
 
@@ -69,7 +72,7 @@ def check_duplicates():
             result = "DUPLICATE FILES FOUND\n"
             result += "=" * 50 + "\n\n"
 
-            for duplicate, original in duplicates:
+            for original, duplicate in duplicates:
                 result += f"Original:\n{original}\n\n"
                 result += f"Duplicate:\n{duplicate}\n"
                 result += "-" * 50 + "\n\n"
@@ -112,23 +115,29 @@ def undo_action():
         )
 
 def view_log():
-    log_file = Path("activity.log")
+    try:
+        if not LOG_FILE.exists():
+            show_output("No activity log found yet.")
+            status_label.config(text="No activity log found")
+            return
 
-    if not log_file.exists():
-        show_output("No activity log found yet.")
-        return
+        with open(LOG_FILE, "r") as file:
+            logs = file.read()
 
-    with open(log_file, "r") as file:
-        logs = file.read()
+        if logs:
+            show_output(logs)
+        else:
+            show_output("Activity log is empty.")
 
-    if logs:
-        show_output(logs)
-    else:
-        show_output("Activity log is empty.")
+        status_label.config(
+            text="Activity log loaded"
+        )
 
-    status_label.config(
-        text="Activity log loaded"
-    )
+    except Exception as error:
+        messagebox.showerror(
+            "Error",
+            str(error)
+        )
 
 
 # ---------------- MAIN WINDOW ----------------
@@ -263,16 +272,35 @@ output_label = tk.Label(
 output_label.pack()
 
 
+output_frame = tk.Frame(root)
+output_frame.pack(
+    padx=20,
+    pady=10
+)
+
+
+scrollbar = tk.Scrollbar(output_frame)
+scrollbar.pack(
+    side=tk.RIGHT,
+    fill=tk.Y
+)
+
+
 output_text = tk.Text(
-    root,
+    output_frame,
     height=15,
-    width=95,
-    wrap=tk.WORD
+    width=92,
+    wrap=tk.WORD,
+    yscrollcommand=scrollbar.set
 )
 
 output_text.pack(
-    padx=20,
-    pady=10
+    side=tk.LEFT
+)
+
+
+scrollbar.config(
+    command=output_text.yview
 )
 
 

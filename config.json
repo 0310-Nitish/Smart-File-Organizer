@@ -20,5 +20,5 @@
     ".cpp": "Code",
     ".html": "Code",
     
-    ".csv" : "Spreadsheets"
+    ".csv": "Spreadsheets"
 }
